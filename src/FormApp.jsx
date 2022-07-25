@@ -1,17 +1,28 @@
+import { useState, useEffect } from "react"
 import { Formulario } from "./components/Formulario"
 import { Tabla } from "./components/Tabla"
-const personas = [{
-    run: '12.345.678-9',
-    nombre: 'Roberta',
-    apellido: 'Soto',
-    ciudad: 'Laja'
-},{
-    run: '13.245.648-9',
-    nombre: 'Andres',
-    apellido: 'Silva',
-    ciudad: 'Santiago'
-}]
-export const FormApp = () => { 
+
+const personas = () => {
+    return JSON.parse(localStorage.getItem('Personas')) || []
+}
+export const FormApp = () => {
+    //useState permitirá cambiar los valores agregados
+    const [valor, setValor] = useState(personas)
+    //permite agregar valores al arreglo 
+    const addPersonas = (nuevoRegistro) => {
+        if (valor.filter(item => item.run === nuevoRegistro.run).length > 0)
+            return alert('el registro ya existe')
+        setValor([nuevoRegistro, ...valor])
+    }
+    //hook useEffect se activa luego de realziar una acción, en este caso cuando se modifique las personas
+    useEffect(() => {
+        localStorage.setItem('Personas', JSON.stringify(valor))
+    }, [valor])
+
+    const eliminarValor = (registro) => {
+        console.log(registro)
+        setValor([...registro])
+    }
     return (
         <div className="container">
             <div>
@@ -21,43 +32,10 @@ export const FormApp = () => {
                 <div className="col-9">
                     <h2 className="text-center">Tabla</h2>
                     {/* tabla */}
-                    <Tabla datos={personas} />
+                    <Tabla datos={valor} deletePerson={eliminarValor}  />
                 </div>
                 <div className="col-3">
-                    <div className="card">
-                        <div className="card-header">
-                            <h2 className="text-center">Formulario</h2>
-                        </div>
-                        <div className="card-body">
-                            <label>Run:</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                name="run"
-                            />
-                            <label>Nombre:</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                name="nombre"
-                            />
-                            <label>Apellido:</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                name="apellido"
-                            />
-                            <label>Ciudad:</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                name="ciudad"
-                            />
-                        </div>
-                        <div className="card-footer">
-                            <input type="button" className="btn btn-success" value="Agregar" />
-                        </div>
-                    </div>
+                    <Formulario addNewPerson={addPersonas} />
                 </div>
             </div>
         </div>
